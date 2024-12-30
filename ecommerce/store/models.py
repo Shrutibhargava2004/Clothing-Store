@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Product(models.Model):
     CLOTH_CHOICES = [
@@ -35,3 +36,21 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+class TempUser(models.Model):
+    username = models.CharField(max_length=150)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.username
+
+# class OTP(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+#     otp = models.CharField(max_length=6)
+#     email = models.EmailField()  # or other fields, depending on your model
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"OTP for {self.email}"

@@ -26,7 +26,12 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('store/', include('store.urls')),  # Include the 'store' app URLs
+    path('', include('store.urls')),  # Include the 'store' app URLs
+    path('verify-otp/<int:temp_user_id>/', views.verify_otp, name='verify_otp'),  # Make sure this is correct
+    path('user-home/', views.user_home, name='user_home'),  # This is required
+
+
+    
 ]
 # Serve media files during development
 if settings.DEBUG:
