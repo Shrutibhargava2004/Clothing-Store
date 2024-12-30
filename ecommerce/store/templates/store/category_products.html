@@ -1,0 +1,16 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h2>{{ category }} Products</h2>
+<div class="product-list">
+    {% for product in products %}
+        <div class="product">
+            <img src="{% static 'store/images/{{ product.image }}' %}" alt="{{ product.name }}">
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <p><strong>Price:</strong> ${{ product.price }}</p>
+            <button class="btn btn-primary">Add to Cart</button>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

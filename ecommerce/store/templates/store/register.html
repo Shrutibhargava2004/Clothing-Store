@@ -1,0 +1,192 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Bhargava Ready Made Cloth Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            background-color: #cdc2b7; /* Cream color */
+        }
+        .navbar {
+            background-color: #f1e1d2; /* Cream color */
+            padding: 20px;
+            text-align: center;
+            position: relative; /* Allows positioning of logo */
+        }
+
+        .navbar img {
+            position: absolute;
+            left: 5%; /* Adds space from the left */
+            top: 50%; /* Vertically center the logo */
+            transform: translateY(-50%); /* Adjust for perfect centering */
+            height: 50px; /* Adjust logo size as needed */
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: right;
+            margin: 0;
+        }
+
+        .navbar li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .register-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #cdc2b7; /* Cream color */
+            margin-top: 7%;
+        }
+
+        .register-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px 40px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .register-box h2 {
+            color: #382109;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .register-box input[type="text"], 
+        .register-box input[type="email"],
+        .register-box input[type="password"], 
+        .register-box input[type="tel"],
+        .register-box input[type="number"],
+        .register-box select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .register-box button {
+            width: 105%;
+            padding: 10px;
+            background-color: #452a0d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .register-box button:hover {
+            background-color: #986a39;
+        }
+
+        /* Flash Message Design Improvements */
+        .flash-messages {
+            position: fixed;
+            top: 20px; /* Slightly down from the top */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%; /* Make it wide enough */
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 1s ease-out;
+            transition: opacity 0.3s ease-in-out; /* Smooth opacity change */
+        }
+
+        /* Flash Message Item */
+        .flash-message {
+            padding: 15px 30px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            width: 90%;
+            max-width: 230px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            color: #fff;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Success Message Style */
+        .flash-message.success {
+            background-color: #4CAF50;
+            border: 2px solid #388E3C;
+        }
+
+        /* Danger Message Style */
+        .flash-message.danger {
+            background-color: #f44336;
+            border: 2px solid #d32f2f;
+        }
+
+        /* Animation for flash messages */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Optional: Hover effect for message */
+        .flash-message:hover {
+            transform: scale(1.05); /* Slight zoom-in effect on hover */
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <img src="{% static 'images/nlogo.png' %}" alt="Logo" class="Logo">
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#">Services</a></li>
+        </ul>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with user=user_object %}
+        <p>{{ user.name }}</p>
+    {% endwith %}
+
+
+    <!-- Registration Form -->
+    <div class="register-container">
+        <div class="register-box">
+            <h2>Register</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}  <!-- Render form fields dynamically -->
+                <button type="submit">Register</button>
+            </form>
+            <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+        </div>
+    </div>
+</body>
+</html>

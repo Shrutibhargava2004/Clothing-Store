@@ -1,0 +1,151 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #b7a798; /* Cream color */
+        }
+
+        .navbar {
+            background-color: #f1e1d2; /* Cream color */
+            padding: 5px 20px; /* Reduced padding for a compact navbar */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .navbar img {
+            margin-left: 4%;
+            height: 50px; /* Adjust logo size as needed */        }
+
+        .navbar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar li {
+            margin: 0 15px;
+            position: relative; /* For dropdown positioning */
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Dropdown Menu Styles */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #f1e1d2;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Search Box Styles */
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input[type="text"] {
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-box button {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 5px;
+            border: 1px solid #ccc;
+            background-color: #f1e1d2;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background-color: #b7a798;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <!-- Logo -->
+        <img src="{% static 'images/nlogo.png' %}" alt="Logo">
+
+        <!-- Navbar Links -->
+        <ul>
+            <li><a href="{% url 'user_home' %}">Home</a></li>
+            
+            <!-- Brands Dropdown -->
+            <li class="dropdown">
+                <a href="#">Brands</a>
+                <div class="dropdown-content">
+                    <a href="#">Brand 1</a>
+                    <a href="#">Brand 2</a>
+                    <a href="#">Brand 3</a>
+                </div>
+            </li>
+
+            <!-- Search -->
+            <li>
+                <div class="search-box">
+                    <input type="text" placeholder="Search...">
+                    <button type="submit">Search</button>
+                </div>
+            </li>
+
+            <!-- Cart -->
+            <li><a href="#cart">Cart</a></li>
+
+            <!-- My Account -->
+            <li><a href="#account">My Account</a></li>
+
+            <!-- About Us -->
+            <li><a href="#about">About Us</a></li>
+
+            <!-- Contact Us -->
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+</body>
+</html>
+
+
+
+

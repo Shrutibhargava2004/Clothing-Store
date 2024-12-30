@@ -1,0 +1,132 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #b7a798; /* Cream color */
+        }
+
+        .navbar {
+            background-color: #f1e1d2; /* Cream color */
+            padding: 20px;
+            text-align: center;
+            position: relative; /* Allows positioning of logo */
+        }
+
+        .navbar img {
+            position: absolute;
+            left: 5%; /* Adds space from the left */
+            top: 50%; /* Vertically center the logo */
+            transform: translateY(-50%); /* Adjust for perfect centering */
+            height: 50px; /* Adjust logo size as needed */
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: right;
+            margin: 0;
+        }
+
+        .navbar li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .image-container {
+            position: relative;
+            text-align: center;
+        }
+
+        .shop-image {
+            width: 100%; /* Adjust as needed */
+            max-width: 1300px; /* Limit the max width */
+            height: auto;
+        }
+
+        .shop-name {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white; /* Change color as needed */
+            font-family: Calibri, sans-serif;
+        }
+
+        .shop-name p {
+            margin: 0;
+        }
+
+        .shop-name .top-text {
+            color: black;
+            font-size: 3em; /* Increased font size */
+        }
+
+        .shop-name .middle-text {
+            color: black;
+            font-size: 3em; /* Increased font size */
+            margin-top: 3px; /* Reduce space between top and middle text */
+        }
+
+        .shop-name .bottom-text {
+            color: #b13e34;
+            font-size: 1rem; /* Font size remains the same for the last line */
+            font-family: 'Arial', sans-serif; /* Stylish font */
+        }
+
+        .explore-button {
+            padding: 10px 20px; /* Adjust padding for button size */
+            border: 1px solid black; /* Thin black border */
+            background-color: transparent; /* Transparent background */
+            color: black; /* Text color */
+            font-size: 16px; /* Adjust font size as needed */
+            font-family: Arial, sans-serif; /* Font style */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 5px; /* Optional: Rounded corners */
+            transition: all 0.3s ease; /* Smooth hover effect */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Make it look like a button */
+            text-align: center;
+            margin-top: 3%;
+        }
+
+        .explore-button:hover {
+            background-color: rgb(67, 35, 1); /* Background turns black on hover */
+            color: white; /* Text color changes to white on hover */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <img src="{% static 'images/nlogo.png' %}" alt="Logo" class="Logo">
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#">Services</a></li>
+        </ul>
+    </nav>
+    
+    <div class="image-container">
+        <img src="{% static 'images/bg.png' %}" alt="Shop Image" class="shop-image">
+        <div class="shop-name">
+            <p class="top-text">BHARGAVA READY MADE</p>
+            <p class="middle-text">CLOTH STORE</p>
+            <p class="bottom-text">IMAGINATIVE FASHION FOR ALL - KIDS, MEN AND WOMEN</p>
+            <a href="{% url 'login' %}" class="explore-button">Explore Now</a> <!-- Correct URL -->
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Bhargava Ready Made Cloth Store</title>
+    <style>
+       body {
+            margin: 0;
+            background-color: #cdc2b7; /* Cream color */
+        }
+
+        .navbar {
+            background-color: #f1e1d2; /* Cream color */
+            padding: 20px;
+            text-align: center;
+            position: relative; /* Allows positioning of logo */
+        }
+
+        .navbar img {
+            position: absolute;
+            left: 5%; /* Adds space from the left */
+            top: 50%; /* Vertically center the logo */
+            transform: translateY(-50%); /* Adjust for perfect centering */
+            height: 50px; /* Adjust logo size as needed */
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: right;
+            margin: 0;
+        }
+
+        .navbar li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: 120px auto 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #644017;
+            margin-bottom: 20px;
+        }
+
+        .form-container input {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: rgb(67, 35, 1);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #7e4e21;
+        }
+
+        .form-container .register-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .form-container .register-link a {
+            color: #644017;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .form-container .register-link a:hover {
+            color: #986a39;
+        }
+        
+        /* Flash Message Design Improvements */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Flash Message Item */
+        .flash-message {
+            padding: 15px 30px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            width: 90%;
+            max-width: 230px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            color: #fff;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Success Message Style */
+        .flash-message.success {
+            background-color: #4CAF50;
+            border: 2px solid #388E3C;
+        }
+
+        /* Danger Message Style */
+        .flash-message.danger {
+            background-color: #f44336;
+            border: 2px solid #d32f2f;
+        }
+        
+        /* Animation for flash messages */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Optional: Hover effect for message */
+        .flash-message:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar">
+        <img src="{% static 'images/nlogo.png' %}" alt="Logo" class="Logo">
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#">Services</a></li>
+        </ul>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+                <div class="flash-message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Login Form -->
+    <div class="form-container">
+        <h2>Login</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}  <!-- Render form fields dynamically -->
+<!-- 
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required> -->
+            <button type="submit">Login</button>
+        </form>
+        <div class="register-link">
+            <p>Don't have an account? <a href="{% url 'register' %}" class="register-btn">Register here</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

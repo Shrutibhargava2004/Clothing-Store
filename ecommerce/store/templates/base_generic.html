@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Store{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        footer {
+            background-color: #f2e1d0; /* Soft pink background */
+            color: #333; /* Text color */
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .footer-links a:hover {
+            color: #2a1d02; /* Highlight on hover */
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .footer-section {
+            text-align: left;
+        }
+
+        .footer-section h4 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .footer-section p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+
+        .footer-section a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .footer-section a:hover {
+            color: #ae6901;
+        }
+
+        .social-media {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .social-media a {
+            color: #333;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .social-media a:hover {
+            color: #b13e34;
+        }
+
+        .newsletter {
+            text-align: center;
+        }
+
+        .newsletter input[type="email"] {
+            padding: 10px;
+            width: 70%;
+            max-width: 300px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .newsletter button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #312300;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .newsletter button:hover {
+            background-color: #333;
+        }
+
+        .footer-bottom {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <!-- Add header content here if needed -->
+    </header>
+
+    <!-- Content Block -->
+    <main>
+        {% block content %}
+        <!-- Page-specific content will be inserted here -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">Bhargava Ready Made Cloth Store</div>
+
+        <!-- Navigation Links -->
+        <div class="footer-links">
+            <a href="#about">About Us</a>
+            <a href="#shop">Shop</a>
+            <a href="#customer-care">Customer Care</a>
+            <a href="#contact">Contact Us</a>
+            <a href="#faq">FAQ</a>
+        </div>
+
+        <!-- Footer Content -->
+        <div class="footer-content">
+            <!-- About Us Section -->
+            <div class="footer-section">
+                <h4>About Us</h4>
+                <p>Bhargava Ready Made Cloth Store offers quality fashion for men, women, and kids. Discover the perfect blend of style and comfort at unbeatable prices.</p>
+                <p>Your one-stop shop for all your clothing needs!</p>
+            </div>
+
+            <!-- Quick Links Section -->
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#brands">Our Brands</a></li>
+                    <li><a href="#sale">Current Offers</a></li>
+                    <li><a href="#new-arrivals">New Arrivals</a></li>
+                    <li><a href="#store-locator">Store Locator</a></li>
+                </ul>
+            </div>
+
+            <!-- Customer Support Section -->
+            <div class="footer-section">
+                <h4>Customer Support</h4>
+                <p>Email: <a href="mailto:support@bhargavastore.com">support@bhargavastore.com</a></p>
+                <p>Phone: +91 98765 43210</p>
+                <p>Working Hours: Mon-Sat: 10 AM - 8 PM</p>
+            </div>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="social-media">
+            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="#"><i class="fa fa-instagram"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+        </div>
+
+        <!-- Newsletter Subscription -->
+        <div class="newsletter">
+            <p>Subscribe to our newsletter for exclusive offers and updates:</p>
+            <form>
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <p>&copy; 2024 Bhargava Ready Made Cloth Store. All rights reserved. | Privacy Policy | Terms & Conditions</p>
+        </div>
+    </footer>
+</body>
+</html>
