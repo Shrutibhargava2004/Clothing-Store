@@ -120,7 +120,8 @@ def logout_view(request):
 
 @login_required
 def user_home(request):
-    return render(request, 'store/user_home.html')
+    categories = Category.objects.all()  # Fetch all categories from the database
+    return render(request, 'store/user_home.html', {'categories': categories})
 
 def user_navbar(request):
     return redirect('user_navbar')
