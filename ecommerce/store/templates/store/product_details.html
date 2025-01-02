@@ -1,0 +1,10 @@
+<h1>{{ product.name }}</h1>
+<p>{{ product.description }}</p>
+<p>Price: {{ product.price }}</p>
+
+<h3>Available Sizes:</h3>
+<ul>
+    {% for size in sizes %}
+        <li>{{ size.size }} - Stock: {{ size.stock }}</li>
+    {% endfor %}
+</ul>

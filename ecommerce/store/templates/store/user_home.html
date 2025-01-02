@@ -34,7 +34,7 @@
         {% for category in categories %}
         <div class="category-box">
             <img src="{{ category.image.url }}" alt="{{ category.name }}">
-            <p>{{ category.name }}</p>
+            <p><a href="{% url 'products_by_category' category.name %}">{{ category.name }}</a>            </p>
         </div>
         {% endfor %}
     </div>

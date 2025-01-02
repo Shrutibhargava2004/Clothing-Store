@@ -1,0 +1,24 @@
+{% load static %}
+
+<!-- Include Navbar -->
+{% include 'store/user_navbar.html' %}
+
+{% block content %}
+<h2>My Wishlist</h2>
+{% if products %}
+    <div class="wishlist-container">
+        {% for product in products %}
+            <div class="wishlist-item">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.description }}</p>
+                <p><strong>Price:</strong> ${{ product.price }}</p>
+                <p><strong>Brand:</strong> {{ product.brand }}</p>
+                <p><strong>Category:</strong> {{ product.cloth }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Your wishlist is empty.</p>
+{% endif %}
+{% endblock %}

@@ -1,16 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
-from .models import Product, Category, TempUser 
+from .models import Product, Category, TempUser , Order, ProductSize, Wishlist
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .forms import RegisterForm, LoginForm 
-import random
+import random, json
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q  # For complex queries like search
+
 
 
 # Home page view
@@ -44,7 +46,7 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'store/login.html', {'form': form})
 
-
+@csrf_exempt
 # Register view
 def register(request):
     if request.method == 'POST':
@@ -71,19 +73,15 @@ def register(request):
 
     return render(request, 'store/register.html', {'form': form})
 
-
-
 # Generate OTP function
 def generate_otp():
     return get_random_string(length=6, allowed_chars='0123456789')
-
 
 # Send OTP email function
 def send_otp_email(user_email, otp):
     subject = 'Your OTP Code'
     message = f'Your OTP for registration is: {otp}'
     send_mail(subject, message, 'bhargavareadymade1962@gmail.com', [user_email])
-
 
 # OTP verification view
 def verify_otp(request, temp_user_id):
@@ -118,15 +116,121 @@ def logout_view(request):
     messages.success(request, "You have been logged out successfully.")
     return redirect('home')  # Redirect to home or login page after logout
 
+# def user_home(request):
+#     categories = Category.objects.all()  # Fetch all categories from the database
+#     return render(request, 'store/user_home.html', {'categories': categories})
 @login_required
 def user_home(request):
+    unique_brands = Product.objects.values_list('brand', flat=True).distinct()
+    print("Unique Brands in user_home:", list(unique_brands))  # Debugging print
     categories = Category.objects.all()  # Fetch all categories from the database
-    return render(request, 'store/user_home.html', {'categories': categories})
-
-def user_navbar(request):
-    return redirect('user_navbar')
-    
+    context = {
+        'brands': unique_brands,
+        'categories': categories,
+    }
+    return render(request, 'store/user_home.html', context)
+  
 # View for displaying products by category
 def category_products(request, category):
     products = Product.objects.filter(name=category, cloth="mens")  # Adjust this to your filter logic
     return render(request, 'store/category_products.html', {'products': products, 'category': category})
+
+def user_orders(request):
+    orders = Order.objects.filter(user=request.user)
+    return render(request, 'orders/user_orders.html', {'orders': orders})
+
+def order_details(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+    except Order.DoesNotExist:
+        return render(request, 'error.html', {'message': 'Order not found'})
+    
+    return render(request, 'orders/order_details.html', {'order': order})
+
+# Display.html
+def products_by_brand(request, brand):
+    # Filter products by the selected brand
+    products = Product.objects.filter(brand=brand)
+    # Get all unique brand names for the dropdown
+    unique_brands = Product.objects.values_list('brand', flat=True).distinct()
+    context = {
+        'products': products,
+        'brand': brand,
+        'brands': unique_brands,  # Pass the list of brands to the template
+    }
+    return render(request, 'store/display.html', context)
+
+def products_by_category(request, category_name):
+    # Filter the category based on the category_name
+    category = Category.objects.get(name=category_name)
+    # Filter products by the category
+    products = Product.objects.filter(category=category)
+    wishlist_ids = []
+    if request.user.is_authenticated:
+        wishlist = Wishlist.objects.filter(user_email=request.user.email).first()
+        if wishlist:
+            wishlist_ids = wishlist.item_ids
+    # Pass the products and category to the template
+    context = {
+        'products': products,
+        'category': category,
+        'wishlist_ids': wishlist_ids,  # Pass the wishlist IDs
+    }
+    return render(request, 'store/display.html', context)
+
+def product_detail(request, product_id):
+    product = Product.objects.get(id=product_id)
+    sizes = ProductSize.objects.filter(product=product)
+    context = {
+        'product': product,
+        'sizes': sizes
+    }
+    return render(request, 'store/product_detail.html', context)
+
+def search_products(request):
+    search_query = request.GET.get('q', '')  # Get the search query from the URL
+    products = Product.objects.filter(
+        Q(name__icontains=search_query) | Q(description__icontains=search_query)
+    )
+    context = {
+        'products': products,
+        'search_query': search_query,
+    }
+    return render(request, 'store/display.html', context)
+
+def toggle_wishlist(request):
+    if request.method == "GET":
+        product_id = request.GET.get('product_id')
+        if product_id:
+            # Get the user's email as a string
+            user_email = request.user.email
+
+            # Retrieve or create the wishlist for the user
+            wishlist, created = Wishlist.objects.get_or_create(user_email=user_email)
+
+            # Toggle the product ID in the wishlist
+            if product_id in wishlist.item_ids:
+                wishlist.item_ids.remove(product_id)
+            else:
+                wishlist.item_ids.append(product_id)
+            
+            # Save the wishlist
+            wishlist.save()
+
+            return JsonResponse({'status': 'success', 'product_id': product_id})
+    return JsonResponse({'status': 'error'})
+
+
+def wishlist_view(request):
+    if not request.user.is_authenticated:
+        return render(request, 'store/error.html', {'message': 'You need to log in to view your wishlist'})
+
+    user_email = request.user.email
+    wishlist = Wishlist.objects.filter(user_email=user_email).first()
+
+    if not wishlist or not wishlist.item_ids:
+        return render(request, 'store/wishlist.html', {'products': []})
+
+    # Get product details for the IDs in the wishlist
+    products = Product.objects.filter(id__in=wishlist.item_ids)
+    return render(request, 'store/wishlist.html', {'products': products})

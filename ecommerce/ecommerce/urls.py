@@ -19,6 +19,8 @@ from django.urls import path, include
 from store import views
 from django.conf import settings
 from django.conf.urls.static import static
+from store.views import toggle_wishlist, wishlist_view
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,9 +31,13 @@ urlpatterns = [
     path('', include('store.urls')),  # Include the 'store' app URLs
     path('verify-otp/<int:temp_user_id>/', views.verify_otp, name='verify_otp'),  # Make sure this is correct
     path('user-home/', views.user_home, name='user_home'),  # This is required
-
-
     
+    path('products/brand/<str:brand>/', views.products_by_brand, name='products_by_brand'),
+    path('products/category/<str:category_name>/', views.products_by_category, name='products_by_category'),
+    path('search/', views.search_products, name='search_products'),
+
+    path('toggle_wishlist/', views.toggle_wishlist, name='toggle_wishlist'),
+    path('wishlist/', wishlist_view, name='wishlist'),
 ]
 # Serve media files during development
 if settings.DEBUG:

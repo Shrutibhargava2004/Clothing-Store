@@ -48,17 +48,20 @@
         /* Dropdown Menu Styles */
         .dropdown {
             position: relative;
+            display: inline-block; /* Ensure inline display for dropdown */
         }
 
         .dropdown-content {
-            display: none;
+            display: none; /* Hidden by default */
             position: absolute;
-            top: 100%;
+            top: 100%; /* Align below the parent item */
             left: 0;
             background-color: #f1e1d2;
-            min-width: 120px;
+            min-width: 150px; /* Adjust width as needed */
             box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
             z-index: 1;
+            border-radius: 4px; /* Optional: Add rounded corners */
+            overflow: hidden; /* Prevent overflow */
         }
 
         .dropdown-content a {
@@ -66,14 +69,15 @@
             padding: 10px;
             text-decoration: none;
             color: #333;
+            font-size: 14px; /* Optional: Adjust font size */
         }
 
         .dropdown-content a:hover {
-            background-color: #ddd;
+            background-color: #ddd; /* Highlight on hover */
         }
 
         .dropdown:hover .dropdown-content {
-            display: block;
+            display: block; /* Show dropdown on hover */
         }
 
         /* Search Box Styles */
@@ -116,18 +120,27 @@
             <li class="dropdown">
                 <a href="#">Brands</a>
                 <div class="dropdown-content">
-                    <a href="#">Brand 1</a>
-                    <a href="#">Brand 2</a>
-                    <a href="#">Brand 3</a>
+                    {% if brands %}
+                        {% for brand in brands %}
+                            <a href="{% url 'products_by_brand' brand %}">{{ brand }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <a href="#">No brands available</a>
+                    {% endif %}
                 </div>
             </li>
 
+
+            <!-- <p>Debugging Brands: {{ brands }}</p> -->
+            
+
             <!-- Search -->
             <li>
-                <div class="search-box">
-                    <input type="text" placeholder="Search...">
+                <!-- Search Form -->
+                <form method="get" action="{% url 'search_products' %}" class="search-box">
+                    <input type="text" name="q" placeholder="Search products..." />
                     <button type="submit">Search</button>
-                </div>
+                </form>
             </li>
 
             <!-- Cart -->
@@ -136,8 +149,8 @@
             <!-- My Account -->
             <li><a href="#account">My Account</a></li>
 
-            <!-- About Us -->
-            <li><a href="#about">About Us</a></li>
+            <!-- My Wishlist -->
+            <li><a href="#">My Wishlist</a></li>
 
             <!-- Contact Us -->
             <li><a href="{% url 'logout' %}">Logout</a></li>
