@@ -38,10 +38,11 @@ class ProductSize(models.Model):
 
         
 class Wishlist(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product, related_name="wishlists")
+    user_email = models.EmailField(unique=True)
+    item_ids = models.JSONField(default=list)  # or use a ManyToManyField for products
+
     def __str__(self):
-        return f"{self.user.username} - {self.product.name}"
+        return f"{self.user_email}"
 
 class TempUser(models.Model):
     username = models.CharField(max_length=150)
@@ -112,10 +113,3 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment for Order #{self.order.id} - {self.payment_status}"
-
-class Wishlist(models.Model):
-    user_email = models.EmailField()  # Correct field type for email
-    item_ids = models.JSONField(default=list)
-
-    def __str__(self):
-        return self.user_email

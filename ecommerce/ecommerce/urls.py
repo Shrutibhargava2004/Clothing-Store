@@ -38,6 +38,8 @@ urlpatterns = [
 
     path('toggle_wishlist/', views.toggle_wishlist, name='toggle_wishlist'),
     path('wishlist/', wishlist_view, name='wishlist'),
+    path('remove-from-wishlist/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+
 ]
 # Serve media files during development
 if settings.DEBUG:

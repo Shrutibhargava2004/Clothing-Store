@@ -5,16 +5,28 @@
 
 {% block content %}
 <h2>My Wishlist</h2>
-{% if products %}
+
+<!-- Wishlist Items -->
+{% if wishlist_items %}
     <div class="wishlist-container">
-        {% for product in products %}
+        {% for product in wishlist_items %}
             <div class="wishlist-item">
+                <!-- Product Image -->
                 <img src="{{ product.image.url }}" alt="{{ product.name }}">
+
+                <!-- Product Details -->
                 <h3>{{ product.name }}</h3>
                 <p>{{ product.description }}</p>
                 <p><strong>Price:</strong> ${{ product.price }}</p>
                 <p><strong>Brand:</strong> {{ product.brand }}</p>
                 <p><strong>Category:</strong> {{ product.cloth }}</p>
+
+                <!-- Remove from Wishlist Button -->
+                <form method="post" action="{% url 'toggle_wishlist' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="remove-btn">Remove from Wishlist</button>
+                </form>
             </div>
         {% endfor %}
     </div>

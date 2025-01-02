@@ -401,7 +401,7 @@
             <li><a href="#account">My Account</a></li>
 
             <!-- My Wishlist -->
-            <li><a href="#">My Wishlist</a></li>
+            <li><a href="{% url 'wishlist' %}">My Wishlist</a></li>
 
             <!-- Contact Us -->
             <li><a href="{% url 'logout' %}">Logout</a></li>
@@ -487,11 +487,12 @@
                                     <!-- Add to Cart Button -->
                                     <button class="add-to-cart-btn">Add to Cart</button>
 
-                                    <!-- Wishlist Icon -->
-                                    <a href="{% url 'toggle_wishlist' %}?product_id={{ product.id }}">
+                                    <i class="fa-solid fa-heart" 
+                                    data-id="{{ product.id }}" 
+                                    onclick="toggleWishlist(this)" 
+                                    style="color: {% if product.id in wishlist_items %}red{% else %}gray{% endif %};">
+                                    </i>
 
-                                    <i class="fa-solid fa-heart" data-id="{{ product.id }}" onclick="toggleWishlist(this)"></i>
-                                    </a>
                                 </div>
                             </div>
                         {% empty %}
@@ -563,7 +564,6 @@
     <script>
         function toggleWishlist(element) {
             const productId = element.getAttribute('data-id');
-            console.log("Product ID:", productId); // Debugging purpose
     
             // Send the product ID to the server
             fetch("{% url 'toggle_wishlist' %}", {
@@ -574,15 +574,24 @@
                 },
                 body: JSON.stringify({ product_id: productId }),
             })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Response from server:", data);
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                });
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response from server:", data);
+    
+                // Toggle the heart color based on action
+                if (data.action === 'added') {
+                    element.style.color = 'red'; // Heart added, change to red
+                } else if (data.action === 'removed') {
+                    element.style.color = 'gray'; // Heart removed, revert color
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
         }
     </script>
+    
+
 </body>
 </html>
 

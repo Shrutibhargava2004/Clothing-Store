@@ -99,7 +99,7 @@ def verify_otp(request, temp_user_id):
         if entered_otp == temp_user.otp:
             # OTP is correct, create the user
             user = User.objects.create_user(username=temp_user.username, email=temp_user.email, password=temp_user.password)
-            
+            wishlist = Wishlist.objects.create(user_email= temp_user.email, item_ids=[])
             # Delete the temporary user record after successful registration
             temp_user.delete()
             
@@ -123,13 +123,24 @@ def logout_view(request):
 def user_home(request):
     unique_brands = Product.objects.values_list('brand', flat=True).distinct()
     print("Unique Brands in user_home:", list(unique_brands))  # Debugging print
+
     categories = Category.objects.all()  # Fetch all categories from the database
+
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist = Wishlist.objects.filter(user_email=request.user.email).first()
+        if wishlist:
+            wishlist_items = wishlist.item_ids
+    print("Wishlist items for user:", wishlist_items)  # Debugging print
+
     context = {
         'brands': unique_brands,
         'categories': categories,
+        'wishlist_items': wishlist_items,  # Pass wishlist items to the template
     }
     return render(request, 'store/user_home.html', context)
-  
+
+
 # View for displaying products by category
 def category_products(request, category):
     products = Product.objects.filter(name=category, cloth="mens")  # Adjust this to your filter logic
@@ -178,6 +189,7 @@ def products_by_category(request, category_name):
     }
     return render(request, 'store/display.html', context)
 
+
 def product_detail(request, product_id):
     product = Product.objects.get(id=product_id)
     sizes = ProductSize.objects.filter(product=product)
@@ -189,48 +201,94 @@ def product_detail(request, product_id):
 
 def search_products(request):
     search_query = request.GET.get('q', '')  # Get the search query from the URL
+
+    # Search for products by name or description
     products = Product.objects.filter(
         Q(name__icontains=search_query) | Q(description__icontains=search_query)
     )
+
+    # Initialize wishlist_items
+    wishlist_items = []
+
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        # Fetch the user's wishlist
+        wishlist = Wishlist.objects.filter(user_email=request.user.email).first()
+        if wishlist:
+            # Extract the product IDs in the wishlist
+            wishlist_items = wishlist.item_ids
+
+    # Pass the products, search query, and wishlist items to the template
     context = {
         'products': products,
         'search_query': search_query,
+        'wishlist_items': wishlist_items,
     }
     return render(request, 'store/display.html', context)
 
+
 def toggle_wishlist(request):
-    if request.method == "GET":
-        product_id = request.GET.get('product_id')
-        if product_id:
-            # Get the user's email as a string
-            user_email = request.user.email
+    if request.method == 'POST' and request.user.is_authenticated:
+        try:
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
 
-            # Retrieve or create the wishlist for the user
-            wishlist, created = Wishlist.objects.get_or_create(user_email=user_email)
+            # Get or create the wishlist for the user
+            wishlist, created = Wishlist.objects.get_or_create(user_email=request.user.email)
 
-            # Toggle the product ID in the wishlist
+            # Check if the product is already in the wishlist
             if product_id in wishlist.item_ids:
                 wishlist.item_ids.remove(product_id)
+                action = 'removed'
             else:
                 wishlist.item_ids.append(product_id)
-            
-            # Save the wishlist
+                action = 'added'
+
+            # Save the updated wishlist
             wishlist.save()
 
-            return JsonResponse({'status': 'success', 'product_id': product_id})
-    return JsonResponse({'status': 'error'})
-
+            # Return the updated state
+            return JsonResponse({
+                'status': 'success',
+                'action': action,
+                'product_id': product_id
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    return JsonResponse({'status': 'error', 'message': 'User not authenticated or invalid request'})
 
 def wishlist_view(request):
-    if not request.user.is_authenticated:
-        return render(request, 'store/error.html', {'message': 'You need to log in to view your wishlist'})
-
+    # Get the logged-in user's email
     user_email = request.user.email
-    wishlist = Wishlist.objects.filter(user_email=user_email).first()
 
-    if not wishlist or not wishlist.item_ids:
-        return render(request, 'store/wishlist.html', {'products': []})
+    # Fetch or create the user's wishlist by email
+    wishlist, created = Wishlist.objects.get_or_create(user_email=user_email)
 
-    # Get product details for the IDs in the wishlist
-    products = Product.objects.filter(id__in=wishlist.item_ids)
-    return render(request, 'store/wishlist.html', {'products': products})
+    # Fetch product IDs from the wishlist (assuming item_ids is a list of product IDs)
+    product_ids = wishlist.item_ids  # Directly using the list of IDs
+
+    # Fetch products that match the IDs
+    wishlist_items = Product.objects.filter(id__in=product_ids)
+
+    # Pass the products to the template
+    context = {
+        'wishlist_items': wishlist_items,
+    }
+    return render(request, 'store/wishlist.html', context)
+
+def remove_from_wishlist(request, product_id):
+    # Get the current user's email
+    user_email = request.user.email
+    
+    # Get the wishlist for the current user by user_email
+    wishlist = Wishlist.objects.get(user_email=user_email)
+    
+    # Get the product to be removed
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Check if the product exists in the wishlist and remove it
+    if product in wishlist.item_ids.all():  # 'item_ids' is a ManyToManyField
+        wishlist.item_ids.remove(product)
+    
+    # Redirect to the wishlist page
+    return redirect('wishlist')
