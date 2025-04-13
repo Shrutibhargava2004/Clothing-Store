@@ -1,36 +1,297 @@
 {% load static %}
-
-<!-- Include Navbar -->
 {% include 'store/user_navbar.html' %}
 
-{% block content %}
-<h2>My Wishlist</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Wishlist</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #b7a798;
+            margin: 0;
+            padding: 0;
+        }
 
-<!-- Wishlist Items -->
-{% if wishlist_items %}
-    <div class="wishlist-container">
-        {% for product in wishlist_items %}
-            <div class="wishlist-item">
-                <!-- Product Image -->
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        h2 {
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
 
-                <!-- Product Details -->
-                <h3>{{ product.name }}</h3>
-                <p>{{ product.description }}</p>
-                <p><strong>Price:</strong> ${{ product.price }}</p>
-                <p><strong>Brand:</strong> {{ product.brand }}</p>
-                <p><strong>Category:</strong> {{ product.cloth }}</p>
+        .wishlist-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
 
-                <!-- Remove from Wishlist Button -->
-                <form method="post" action="{% url 'toggle_wishlist' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
-                    <button type="submit" class="remove-btn">Remove from Wishlist</button>
-                </form>
-            </div>
-        {% endfor %}
+        .product-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .product-image img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-details {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .product-details h3 {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .product-details p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-top: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+
+        .wishlist-icon {
+            font-size: 20px;
+            color: red;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .wishlist-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .add-to-cart-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 40px;
+            color: #444;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        #doneBtn:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h2>My Wishlist</h2>
+
+    {% if wishlist_items %}
+        <div class="wishlist-container" id="wishlist-container">
+            {% for product in wishlist_items %}
+                <div class="product-item" id="product-{{ product.id }}">
+                    <div class="product-image">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="product-details">
+                        <h3>{{ product.name }}</h3>
+                        <p>{{ product.description }}</p>
+                        <p><strong>Price:</strong> ${{ product.price }}</p>
+                        <p><strong>Brand:</strong> {{ product.brand }}</p>
+                        <p><strong>Category:</strong> {{ product.cloth }}</p>
+                    </div>
+                    <div class="product-actions">
+                        <button class="add-to-cart-btn" onclick="openSizeModal('{{ product.id }}', '{{ product.name }}', '{{ product.price }}', {{ product.id }})">Add to Cart</button>
+                        <i class="fa-solid fa-heart wishlist-icon"
+                           data-id="{{ product.id }}"
+                           onclick="toggleWishlist(this)"></i>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-message">Your wishlist is empty.</p>
+    {% endif %}
+
+    <!-- Modal -->
+    <div id="sizeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modalProductName"></h3>
+            <p id="modalProductPrice"></p>
+
+            <h4>Select Size:</h4>
+            <form id="sizeForm">
+                <div id="sizeOptions"></div>
+                <br>
+                <button type="submit" id="doneBtn" disabled>Done</button>
+            </form>
+        </div>
     </div>
-{% else %}
-    <p>Your wishlist is empty.</p>
-{% endif %}
-{% endblock %}
+
+    <script>
+        let currentProductId = null;
+
+        function toggleWishlist(icon) {
+            const productId = icon.getAttribute("data-id");
+
+            fetch("{% url 'toggle_wishlist' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`product-${productId}`).remove();
+                    const container = document.getElementById("wishlist-container");
+                    if (container.children.length === 0) {
+                        container.outerHTML = `<p class="empty-message">Your wishlist is empty.</p>`;
+                    }
+                } else {
+                    console.error("Failed to remove from wishlist.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+
+        function openSizeModal(productId, name, price, productDbId) {
+            currentProductId = productDbId;
+            document.getElementById("modalProductName").innerText = name;
+            document.getElementById("modalProductPrice").innerText = "Price: $" + price;
+
+            const sizeOptions = document.getElementById("sizeOptions");
+            sizeOptions.innerHTML = "";
+
+            // Fetch available sizes from database (ProductSize)
+            fetch(`/get_product_sizes/${productDbId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sizes.length === 0) {
+                        sizeOptions.innerHTML = "<p>No available sizes.</p>";
+                    } else {
+                        data.sizes.forEach(size => {
+                            sizeOptions.innerHTML += `
+                                <label><input type="radio" name="size" value="${size}" onchange="enableDoneBtn()"> ${size}</label><br>`;
+                        });
+                    }
+                });
+
+            document.getElementById("doneBtn").disabled = true;
+            document.getElementById("sizeModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("sizeModal").style.display = "none";
+        }
+
+        function enableDoneBtn() {
+            document.getElementById("doneBtn").disabled = false;
+        }
+
+        document.getElementById("sizeForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const selectedSize = document.querySelector("input[name='size']:checked");
+
+            if (!selectedSize) {
+                alert("Please select a size.");
+                return;
+            }
+
+            const size = selectedSize.value;
+
+            fetch("{% url 'add_to_cart' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    product_id: currentProductId,
+                    size: size
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Item added to cart!");
+                    closeModal();
+                } else {
+                    alert("Failed to add to cart.");
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

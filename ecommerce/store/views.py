@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
-from .models import Product, Category, TempUser , Order, ProductSize, Wishlist
+from .models import Product, Category, TempUser , Order, ProductSize, Wishlist, Cart
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
@@ -160,35 +160,45 @@ def order_details(request, order_id):
 
 # Display.html
 def products_by_brand(request, brand):
-    # Filter products by the selected brand
     products = Product.objects.filter(brand=brand)
-    # Get all unique brand names for the dropdown
-    unique_brands = Product.objects.values_list('brand', flat=True).distinct()
+    all_brands = Product.objects.values_list('brand', flat=True).distinct()
     context = {
         'products': products,
         'brand': brand,
-        'brands': unique_brands,  # Pass the list of brands to the template
+        'brands': all_brands,        # All brands for the dropdown
     }
     return render(request, 'store/display.html', context)
 
 def products_by_category(request, category_name):
-    # Filter the category based on the category_name
+    # Get the selected category object
     category = Category.objects.get(name=category_name)
-    # Filter products by the category
+
+    # Filter products in this category
     products = Product.objects.filter(category=category)
+
+    # Wishlist logic
     wishlist_ids = []
     if request.user.is_authenticated:
         wishlist = Wishlist.objects.filter(user_email=request.user.email).first()
         if wishlist:
             wishlist_ids = wishlist.item_ids
-    # Pass the products and category to the template
+
+    # Get all unique brands for dropdown
+    all_brands = Product.objects.values_list('brand', flat=True).distinct()
+
+    # Get all categories for sidebar
+    all_categories = Category.objects.all()
+
+    # Pass everything to the template
     context = {
         'products': products,
         'category': category,
-        'wishlist_ids': wishlist_ids,  # Pass the wishlist IDs
+        'wishlist_ids': wishlist_ids,
+        'brands': all_brands,
+        'categories': all_categories,
     }
-    return render(request, 'store/display.html', context)
 
+    return render(request, 'store/display.html', context)
 
 def product_detail(request, product_id):
     product = Product.objects.get(id=product_id)
@@ -200,32 +210,72 @@ def product_detail(request, product_id):
     return render(request, 'store/product_detail.html', context)
 
 def search_products(request):
-    search_query = request.GET.get('q', '')  # Get the search query from the URL
+    search_query = request.GET.get('q', '')
+    selected_brand = request.GET.get('brand', '')
+    selected_category = request.GET.get('category', '')
+    selected_price = request.GET.get('price', '')
 
-    # Search for products by name or description
+    # Start with all products matching the search query
     products = Product.objects.filter(
         Q(name__icontains=search_query) | Q(description__icontains=search_query)
     )
 
-    # Initialize wishlist_items
-    wishlist_items = []
+    # Apply brand filter if selected
+    if selected_brand:
+        products = products.filter(brand=selected_brand)
 
-    # Check if the user is authenticated
+    # Apply category filter if selected
+    if selected_category:
+        products = products.filter(category__name=selected_category)
+
+    # Apply price filter if selected
+    if selected_price:
+        try:
+            max_price = float(selected_price)
+            products = products.filter(price__lte=max_price)
+        except ValueError:
+            pass  # Ignore invalid input
+
+    # Wishlist logic
+    wishlist_items = []
     if request.user.is_authenticated:
-        # Fetch the user's wishlist
         wishlist = Wishlist.objects.filter(user_email=request.user.email).first()
         if wishlist:
-            # Extract the product IDs in the wishlist
             wishlist_items = wishlist.item_ids
 
-    # Pass the products, search query, and wishlist items to the template
+    # Get all distinct brands and all categories
+    brands = Product.objects.values_list('brand', flat=True).distinct()
+    categories = Category.objects.all()
+
     context = {
         'products': products,
         'search_query': search_query,
         'wishlist_items': wishlist_items,
+        'brands': brands,
+        'categories': categories,
+        'selected_brand': selected_brand,
+        'selected_category': selected_category,
+        'selected_price': selected_price,
     }
+
     return render(request, 'store/display.html', context)
 
+def display_products(request):
+    # Get all products
+    products = Product.objects.all()
+
+    # Get the user's wishlist
+    if request.user.is_authenticated:
+        wishlist = Wishlist.objects.filter(user_email=request.user.email).first()
+        wishlist_item_ids = wishlist.item_ids if wishlist else []
+    else:
+        wishlist_item_ids = []
+
+    # Pass products and wishlist state to the template
+    return render(request, 'store/display.html', {
+        'products': products,
+        'wishlist_item_ids': wishlist_item_ids
+    })
 
 def toggle_wishlist(request):
     if request.method == 'POST' and request.user.is_authenticated:
@@ -255,24 +305,20 @@ def toggle_wishlist(request):
             })
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
+
     return JsonResponse({'status': 'error', 'message': 'User not authenticated or invalid request'})
 
 def wishlist_view(request):
-    # Get the logged-in user's email
     user_email = request.user.email
-
-    # Fetch or create the user's wishlist by email
     wishlist, created = Wishlist.objects.get_or_create(user_email=user_email)
-
-    # Fetch product IDs from the wishlist (assuming item_ids is a list of product IDs)
-    product_ids = wishlist.item_ids  # Directly using the list of IDs
-
-    # Fetch products that match the IDs
+    product_ids = wishlist.item_ids
     wishlist_items = Product.objects.filter(id__in=product_ids)
-
-    # Pass the products to the template
+    brands = Product.objects.values_list('brand', flat=True).distinct()
+    categories = Category.objects.all()
     context = {
         'wishlist_items': wishlist_items,
+        'brands': brands,
+        'categories': categories,
     }
     return render(request, 'store/wishlist.html', context)
 
@@ -292,3 +338,53 @@ def remove_from_wishlist(request, product_id):
     
     # Redirect to the wishlist page
     return redirect('wishlist')
+
+# Move to cart
+@csrf_exempt
+def add_to_cart(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            product_id = data['product_id']
+            selected_size = data['size']
+
+            # Check if product exists
+            try:
+                product = Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=400)
+
+            # Check if selected size is available for the product
+            if not selected_size:
+                return JsonResponse({'status': 'error', 'message': 'Please select a size'}, status=400)
+
+            # Add the product to the cart
+            cart_item = Cart.objects.create(
+                user_email=request.user.email,  # Adjust to get the user from the request as needed
+                product=product,
+                selected_size=selected_size,
+                quantity=1,  # Adjust quantity as needed
+                added_at=datetime.now()
+            )
+
+            return JsonResponse({'status': 'success', 'message': 'Item added to cart'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            # Log the exception for debugging purposes
+            print(str(e))
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+def view_cart(request):
+    user_email = request.user.email
+    cart_items = Cart.objects.filter(user_email=user_email)
+    return render(request, 'store/cart.html', {'cart_items': cart_items})
+
+def get_product_sizes(request, product_id):
+    sizes = ProductSize.objects.filter(product_id=product_id)
+    size_list = [size.size for size in sizes if size.stock > 0]  # Only available sizes
+    return JsonResponse({"sizes": size_list})

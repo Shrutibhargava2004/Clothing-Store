@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category,TempUser, Product, Order, OrderItem, Payment,ProductSize, Wishlist
+from .models import Category,TempUser, Product, Order, OrderItem, Payment,ProductSize, Wishlist, Cart
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -69,3 +69,4 @@ class WishlistAdmin(admin.ModelAdmin):
     # You can add other configurations here if needed
 
 admin.site.register(Wishlist, WishlistAdmin)
+admin.site.register(Cart)

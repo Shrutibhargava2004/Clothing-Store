@@ -1,4 +1,8 @@
 {% load static %}
+
+<!-- Include Navbar -->
+{% include 'store/user_navbar.html' %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,101 +16,6 @@
             margin: 0;
             padding: 0;
             background-color: #b7a798; /* Cream color */
-        }
-
-        /* Navbar Styles */
-        .navbar {
-            background-color: #f1e1d2; /* Cream color */
-            padding: 5px 20px; /* Reduced padding for a compact navbar */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            font-family: 'Times New Roman', Times, serif;
-        }
-
-        .navbar img {
-            margin-left: 4%;
-            height: 50px; /* Adjust logo size as needed */        }
-
-        .navbar ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar li {
-            margin: 0 15px;
-            position: relative; /* For dropdown positioning */
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-
-        /* Dropdown Menu Styles */
-        .dropdown {
-            position: relative;
-            display: inline-block; /* Ensure inline display for dropdown */
-        }
-
-        .dropdown-content {
-            display: none; /* Hidden by default */
-            position: absolute;
-            top: 100%; /* Align below the parent item */
-            left: 0;
-            background-color: #f1e1d2;
-            min-width: 150px; /* Adjust width as needed */
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            border-radius: 4px; /* Optional: Add rounded corners */
-            overflow: hidden; /* Prevent overflow */
-        }
-
-        .dropdown-content a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: #333;
-            font-size: 14px; /* Optional: Adjust font size */
-        }
-
-        .dropdown-content a:hover {
-            background-color: #ddd; /* Highlight on hover */
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block; /* Show dropdown on hover */
-        }
-
-        /* Search Box Styles */
-        .search-box {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-box input[type="text"] {
-            padding: 5px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .search-box button {
-            padding: 5px 10px;
-            font-size: 14px;
-            margin-left: 5px;
-            border: 1px solid #ccc;
-            background-color: #f1e1d2;
-            cursor: pointer;
-        }
-
-        .search-box button:hover {
-            background-color: #b7a798;
         }
 
         /* Footer Styles */
@@ -197,6 +106,12 @@
             margin-top: 30px;
             font-size: 12px;
             color: #555;
+        }
+        .liked {
+            color: red;
+        }
+        .unliked {
+            color: gray;
         }
 
         /* Layout for main content */
@@ -350,121 +265,58 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <!-- Logo -->
-        <img src="{% static 'images/nlogo.png' %}" alt="Logo">
-
-        <!-- Navbar Links -->
-        <ul>
-            <li><a href="{% url 'user_home' %}">Home</a></li>
-            
-            <!-- Brands Dropdown -->
-            <li class="dropdown">
-                <a href="#">Brands</a>
-                <div class="dropdown-content">
-                    {% if brands %}
-                        {% for brand in brands %}
-                            <a href="{% url 'products_by_brand' brand %}">{{ brand }}</a>
-                        {% endfor %}
-                    {% else %}
-                        <a href="#">No brands available</a>
-                    {% endif %}
-                </div>
-            </li>
-
-
-            <!-- <p>Debugging Brands: {{ brands }}</p> -->
-            
-
-            <!-- Search -->
-            <li>
-                <!-- Search Form -->
-                <form method="get" action="{% url 'search_products' %}" class="search-box">
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search products...">
-                    
-                    <!-- <select name="brand">
-                        <option value="">All Brands</option>
-                        {% for brand in brands %}
-                            <option value="{{ brand }}" {% if brand == selected_brand %}selected{% endif %}>{{ brand }}</option>
-                        {% endfor %}
-                    </select> -->
-                    
-                    <button type="submit">Search</button>
-                </form>
-            </li>
-
-            <!-- Cart -->
-            <li><a href="#cart">Cart</a></li>
-
-            <!-- My Account -->
-            <li><a href="#account">My Account</a></li>
-
-            <!-- My Wishlist -->
-            <li><a href="{% url 'wishlist' %}">My Wishlist</a></li>
-
-            <!-- Contact Us -->
-            <li><a href="{% url 'logout' %}">Logout</a></li>
-        </ul>
-    </nav>
-
+    
     <!-- Content Block -->
     <main>
         {% block content %}
         <div class="main-container">
+
             <!-- Left Sidebar with filters -->
             <div class="filter-sidebar">
                 <h4>Filter Products</h4>
-
-                <!-- Filter by Brand -->
-                <div class="filter-option">
-                    <form method="get" action="{% url 'search_products' %}">
+            
+                <form method="get" action="{% url 'search_products' %}">
+                    <!-- Filter by Brand -->
+                    <div class="filter-option">
                         <label for="brand">Brand</label>
-                        <select id="brand" name="brand" onchange="this.form.submit()">
+                        <select id="brand" name="brand">
                             <option value="">All Brands</option>
-                            {% for brand in brands %}
-                                <option value="{{ brand }}" {% if brand == selected_brand %}selected{% endif %}>{{ brand }}</option>
-                            {% endfor %}
+                            {% if brands %}
+                                {% for brand in brands %}
+                                    <option value="{{ brand }}" {% if brand == selected_brand %}selected{% endif %}>{{ brand }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option disabled>No brands available</option>
+                            {% endif %}
                         </select>
-                    </form>
-                </div>
-
-                <!-- Filter by Price -->
-                <div class="filter-option">
-                    <form method="get" action="{% url 'search_products' %}">
-                        <label for="price">Price</label>
-                        <input type="range" id="price" name="price" min="0" max="1000" step="10" value="{{ selected_price }}" onchange="this.form.submit()">
-                        <span>Max Price: $1000</span>
-                    </form>
-                </div>
-
-                <!-- Filter by Category -->
-                <div class="filter-option">
-                    <form method="get" action="{% url 'search_products' %}">
+                    </div>
+            
+                    <!-- Filter by Price -->
+                    <div class="filter-option">
+                        <label for="price">Max Price: ${{ selected_price|default:1000 }}</label>
+                        <input type="range" id="price" name="price" min="0" max="1000" step="10" value="{{ selected_price|default:1000 }}">
+                    </div>
+            
+                    <!-- Filter by Category -->
+                    <div class="filter-option">
                         <label for="category">Category</label>
-                        <select id="category" name="category" onchange="this.form.submit()">
+                        <select id="category" name="category">
                             <option value="">All Categories</option>
-                            {% for category in categories %}
-                                <option value="{{ category.name }}" {% if category.name == selected_category %}selected{% endif %}>{{ category.name }}</option>
-                            {% endfor %}
+                            {% if categories %}
+                                {% for category in categories %}
+                                    <option value="{{ category.name }}" {% if category.name == selected_category %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option disabled>No categories available</option>
+                            {% endif %}
                         </select>
-                    </form>
-                </div>
-
-                <!-- Filter by Cloth Type -->
-                <div class="filter-option">
-                    <form method="get" action="{% url 'search_products' %}">
-                        <label for="cloth">Clothing For</label>
-                        <select id="cloth" name="cloth" onchange="this.form.submit()">
-                            <option value="">All Types</option>
-                            <option value="kids" {% if selected_cloth == 'kids' %}selected{% endif %}>Kids</option>
-                            <option value="men" {% if selected_cloth == 'men' %}selected{% endif %}>Men</option>
-                            <option value="women" {% if selected_cloth == 'women' %}selected{% endif %}>Women</option>
-                        </select>
-                    </form>
-                </div>
-                
-                
+                    </div>
+            
+                    <!-- Apply Filter Button -->
+                    <div class="filter-option" style="text-align: center; margin-top: 20px;">
+                        <button type="submit" class="add-to-cart-btn">Apply Filter</button>
+                    </div>
+                </form>
             </div>
 
             <!-- Product Grid -->
@@ -486,13 +338,13 @@
                                 <div class="product-actions">
                                     <!-- Add to Cart Button -->
                                     <button class="add-to-cart-btn">Add to Cart</button>
-
+            
+                                    <!-- Heart Icon for Wishlist -->
                                     <i class="fa-solid fa-heart" 
-                                    data-id="{{ product.id }}" 
-                                    onclick="toggleWishlist(this)" 
-                                    style="color: {% if product.id in wishlist_items %}red{% else %}gray{% endif %};">
+                                        data-id="{{ product.id }}" 
+                                        onclick="toggleWishlist(this)" 
+                                        style="color: {% if product.id in wishlist_item_ids %}red{% else %}gray{% endif %};">
                                     </i>
-
                                 </div>
                             </div>
                         {% empty %}
@@ -503,7 +355,7 @@
                     <p>No products found.</p>
                 {% endif %}
             </div>
-
+            
         {% endblock %}
     </main>
 
@@ -561,6 +413,38 @@
             <p>&copy; 2024 Bhargava Ready Made Cloth Store. All rights reserved. | Privacy Policy | Terms & Conditions</p>
         </div>
     </footer>
+    
+    <!-- <script>
+        function toggleWishlist(element) {
+            const productId = element.getAttribute('data-id');
+    
+            // Send the product ID to the server
+            fetch("{% url 'toggle_wishlist' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                body: JSON.stringify({ product_id: productId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response from server:", data);
+    
+                // Toggle the heart color based on action
+                if (data.action === 'added') {
+                    element.style.color = 'red'; // Heart added, change to red
+                } else if (data.action === 'removed') {
+                    element.style.color = 'gray'; // Heart removed, revert color
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    </script>
+     -->
+
     <script>
         function toggleWishlist(element) {
             const productId = element.getAttribute('data-id');
@@ -591,7 +475,103 @@
         }
     </script>
     
-
+    
 </body>
 </html>
 
+
+
+<!-- /* Navbar Styles */
+.navbar {
+    background-color: #f1e1d2; /* Cream color */
+    padding: 5px 20px; /* Reduced padding for a compact navbar */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.navbar img {
+    margin-left: 4%;
+    height: 50px; /* Adjust logo size as needed */        }
+
+.navbar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.navbar li {
+    margin: 0 15px;
+    position: relative; /* For dropdown positioning */
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Dropdown Menu Styles */
+.dropdown {
+    position: relative;
+    display: inline-block; /* Ensure inline display for dropdown */
+}
+
+.dropdown-content {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%; /* Align below the parent item */
+    left: 0;
+    background-color: #f1e1d2;
+    min-width: 150px; /* Adjust width as needed */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px; /* Optional: Add rounded corners */
+    overflow: hidden; /* Prevent overflow */
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px; /* Optional: Adjust font size */
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd; /* Highlight on hover */
+}
+
+.dropdown:hover .dropdown-content {
+    display: block; /* Show dropdown on hover */
+}
+
+/* Search Box Styles */
+.search-box {
+    display: flex;
+    align-items: center;
+}
+
+.search-box input[type="text"] {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.search-box button {
+    padding: 5px 10px;
+    font-size: 14px;
+    margin-left: 5px;
+    border: 1px solid #ccc;
+    background-color: #f1e1d2;
+    cursor: pointer;
+}
+
+.search-box button:hover {
+    background-color: #b7a798;
+} -->

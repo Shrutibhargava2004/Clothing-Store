@@ -10,5 +10,8 @@ urlpatterns = [
     path('category/<str:category>/', views.category_products, name='category_products'),
     path('user-home/', views.user_home, name='user_home'),  # Ensure this exists
     path('logout/', views.logout_view, name='logout'),
+    
+    path('products/', views.display_products, name='display_products'),
+    path('get_product_sizes/<int:product_id>/', views.get_product_sizes, name='get_product_sizes'),
 
 ]

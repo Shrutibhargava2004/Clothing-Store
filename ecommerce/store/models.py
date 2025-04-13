@@ -113,3 +113,13 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment for Order #{self.order.id} - {self.payment_status}"
+
+class Cart(models.Model):
+    user_email = models.EmailField()
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    selected_size = models.CharField(max_length=5)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.name} ({self.selected_size}) - {self.user_email}"
