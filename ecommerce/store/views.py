@@ -216,36 +216,36 @@ def search_products(request):
     selected_brand = request.GET.get('brand', '')
     selected_category = request.GET.get('category', '')
     selected_price = request.GET.get('price', '')
+    selected_cloth = request.GET.get('cloth', '')  # 👈 Clothing For filter
 
     # Start with all products matching the search query
     products = Product.objects.filter(
         Q(name__icontains=search_query) | Q(description__icontains=search_query)
     )
 
-    # Apply brand filter if selected
     if selected_brand:
         products = products.filter(brand=selected_brand)
 
-    # Apply category filter if selected
     if selected_category:
         products = products.filter(category__name=selected_category)
 
-    # Apply price filter if selected
     if selected_price:
         try:
             max_price = float(selected_price)
             products = products.filter(price__lte=max_price)
         except ValueError:
-            pass  # Ignore invalid input
+            pass
 
-    # Wishlist logic
+    # ✅ Filter by cloth (kids, men, women)
+    if selected_cloth:
+        products = products.filter(cloth=selected_cloth)
+
     wishlist_items = []
     if request.user.is_authenticated:
         wishlist = Wishlist.objects.filter(user_email=request.user.email).first()
         if wishlist:
             wishlist_items = wishlist.item_ids
 
-    # Get all distinct brands and all categories
     brands = Product.objects.values_list('brand', flat=True).distinct()
     categories = Category.objects.all()
 
@@ -258,6 +258,7 @@ def search_products(request):
         'selected_brand': selected_brand,
         'selected_category': selected_category,
         'selected_price': selected_price,
+        'selected_cloth': selected_cloth,  # 👈 for template selection state
     }
 
     return render(request, 'store/display.html', context)
@@ -384,7 +385,9 @@ def add_to_cart(request):
 def view_cart(request):
     user_email = request.user.email
     cart_items = Cart.objects.filter(user_email=user_email)
-    return render(request, 'store/cart.html', {'cart_items': cart_items})
+    brands = Product.objects.values_list('brand', flat=True).distinct()
+
+    return render(request, 'store/cart.html', {'cart_items': cart_items,'brands': brands,})
 
 def get_product_sizes(request, product_id):
     sizes = ProductSize.objects.filter(product_id=product_id)

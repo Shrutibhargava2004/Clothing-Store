@@ -1,12 +1,12 @@
+{% extends 'base_generic.html' %}
 {% load static %}
-{% include 'store/user_navbar.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My Wishlist</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<title>Products</title>
+
+
+{% block content %}
+
+    {% include 'store/user_navbar.html' %}
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,16 +16,17 @@
         }
 
         h2 {
-            text-align: center;
-            padding: 20px;
-            color: #333;
+            text-align:left;
+            padding-left: 20px;
+            color: #ffffff;
         }
 
         .wishlist-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
-            padding: 20px;
+            /* padding: 20px; */
+            padding-left: 20px;
         }
 
         .product-item {
@@ -148,8 +149,7 @@
             cursor: not-allowed;
         }
     </style>
-</head>
-<body>
+
     <h2>My Wishlist</h2>
 
     {% if wishlist_items %}
@@ -161,7 +161,7 @@
                     </div>
                     <div class="product-details">
                         <h3>{{ product.name }}</h3>
-                        <p>{{ product.description }}</p>
+                        <!-- <p>{{ product.description }}</p> -->
                         <p><strong>Price:</strong> ${{ product.price }}</p>
                         <p><strong>Brand:</strong> {{ product.brand }}</p>
                         <p><strong>Category:</strong> {{ product.cloth }}</p>
@@ -293,5 +293,5 @@
         });
 
     </script>
-</body>
-</html>
+
+{% endblock %}
